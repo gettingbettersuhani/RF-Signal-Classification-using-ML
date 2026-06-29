@@ -1,0 +1,9 @@
+==================================================
+RadioML Dataset Summary
+==================================================
+
+Total Samples                 : 220000
+Total Modulations             : 11
+Total SNR Levels              : 20
+Samples Per Combination       : 1000
+IQ Shape                      : (1000, 2, 128)
