@@ -80,3 +80,13 @@ def dataset_summary(dataset):
     }
 
     return summary
+
+if __name__ == "__main__":
+
+    PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+    dataset_path = PROJECT_ROOT / "data" / "raw" / "RML2016.10a_dict.pkl"
+
+    dataset = load_dataset(dataset_path)
+
+    print("Total Samples:", get_total_samples(dataset))
