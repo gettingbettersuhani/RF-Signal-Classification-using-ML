@@ -131,3 +131,29 @@ def add_awgn_noise(iq_signal, snr_db):
         noisy_signal.real,
         noisy_signal.imag
     ])
+
+def calculate_fft_magnitude(iq_signal):
+    """
+    Compute FFT magnitude of IQ signal.
+    """
+
+    I, Q = split_iq(iq_signal)
+
+    complex_signal = I + 1j * Q
+
+    fft = np.fft.fft(complex_signal)
+
+    fft = np.abs(fft)
+
+    return fft
+
+def calculate_psd(iq_signal):
+    """
+    Compute Power Spectral Density.
+    """
+
+    fft = calculate_fft_magnitude(iq_signal)
+
+    psd = (fft ** 2) / len(fft)
+
+    return psd
