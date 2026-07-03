@@ -1,210 +1,712 @@
-from pyexpat import features
-
+"""
+Production Feature Extraction Module
+RF Signal Classification
+"""
+from scipy.signal import welch
 import numpy as np
+from scipy.stats import kurtosis
+
 import src.data.preprocessing as prep
 
-def extract_time_features(iq_signal):
+
+EPSILON = 1e-12
+
+
+def _haar_detail_coeffs(signal, levels=3):
     """
-    Extract time-domain features.
-    """
-
-    amplitude = prep.calculate_amplitude(iq_signal)
-
-    mean = np.mean(amplitude)
-
-    std = np.std(amplitude)
-
-    variance = np.var(amplitude)
-
-    maximum = np.max(amplitude)
-
-    minimum = np.min(amplitude)
-
-    median = np.median(amplitude)
-
-    rms = np.sqrt(np.mean(amplitude ** 2))
-
-    peak_to_peak = np.ptp(amplitude)
-
-    energy = np.sum(amplitude ** 2)
-
-    mean_abs = np.mean(np.abs(amplitude))
-
-    abs_peak = np.max(np.abs(amplitude))
-
-    crest_factor = abs_peak / rms
-
-    shape_factor = rms / mean_abs
-
-    impulse_factor = abs_peak / mean_abs
-
-    return {
-
-        "Mean": mean,
-
-        "Std": std,
-
-        "Variance": variance,
-
-        "Maximum": maximum,
-
-        "Minimum": minimum,
-
-        "Median": median,
-
-        "RMS": rms,
-
-        "PeakToPeak": peak_to_peak,
-
-        "Energy": energy,
-
-        "MeanAbsolute": mean_abs,
-
-        "AbsolutePeak": abs_peak,
-
-        "CrestFactor": crest_factor,
-
-        "ShapeFactor": shape_factor,
-
-        "ImpulseFactor": impulse_factor
-
-    }
-
-def extract_frequency_features(iq_signal):
-    """
-    Extract frequency-domain features.
+    Compute the final Haar detail coefficients without requiring PyWavelets.
     """
 
-    fft = prep.calculate_fft_magnitude(iq_signal)
+    coeffs = np.asarray(np.real(signal), dtype=float)
 
-    psd = prep.calculate_psd(iq_signal)
+    if coeffs.size < 2:
+        return coeffs
 
-    # Basic FFT Statistics
-    fft_mean = np.mean(fft)
+    for _ in range(levels):
+        if coeffs.size < 2:
+            break
 
-    fft_std = np.std(fft)
+        if coeffs.size % 2 == 1:
+            coeffs = coeffs[:-1]
 
-    fft_max = np.max(fft)
+        coeffs = (coeffs[::2] - coeffs[1::2]) / np.sqrt(2.0)
 
-    fft_energy = np.sum(fft ** 2)
+        if coeffs.size == 0:
+            break
 
-    # Dominant Frequency Index
-    dominant_frequency = np.argmax(fft)
+    return coeffs
 
-    # Spectral Centroid
-    frequencies = np.arange(len(fft))
-
-    spectral_centroid = np.sum(frequencies * fft) / np.sum(fft)
-
-    # Spectral Spread
-    spectral_spread = np.sqrt(
-        np.sum(
-            ((frequencies - spectral_centroid) ** 2) * fft
-        ) / np.sum(fft)
-    )
-
-    # Spectral Entropy
-    normalized_psd = psd / np.sum(psd)
-
-    spectral_entropy = -np.sum(
-        normalized_psd * np.log2(normalized_psd + 1e-12)
-    )
-
-    # PSD Statistics
-    psd_mean = np.mean(psd)
-
-    psd_max = np.max(psd)
-
-    return {
-
-        "FFTMean": fft_mean,
-
-        "FFTStd": fft_std,
-
-        "FFTMaximum": fft_max,
-
-        "FFTEnergy": fft_energy,
-
-        "DominantFrequency": dominant_frequency,
-
-        "SpectralCentroid": spectral_centroid,
-
-        "SpectralSpread": spectral_spread,
-
-        "SpectralEntropy": spectral_entropy,
-
-        "PSDMean": psd_mean,
-
-        "PSDMaximum": psd_max
-
-    }
-
-def extract_iq_features(iq_signal):
+def get_complex_signal(iq_signal):
     """
-    Extract IQ-domain features.
+    Convert IQ samples to complex baseband signal.
     """
 
     I, Q = prep.split_iq(iq_signal)
 
-    # Mean
-    i_mean = np.mean(I)
-    q_mean = np.mean(Q)
+    return I + 1j * Q
 
-    # Standard deviation
-    i_std = np.std(I)
-    q_std = np.std(Q)
+def safe_divide(a, b):
+    """
+    Safe division.
+    """
 
-    # Correlation
-    if np.std(I) == 0 or np.std(Q) == 0:
-        correlation = 0.0
-    else:
-        correlation = np.corrcoef(I, Q)[0, 1]
+    return a / (b + EPSILON)
 
-    # Phase
-    phase = prep.calculate_phase(iq_signal)
 
-    phase_std = np.std(phase)
+def normalize(signal):
+    """
+    Zero mean, unit variance normalization.
+    """
+
+    signal = signal - np.mean(signal)
+
+    std = np.std(signal)
+
+    if std < EPSILON:
+        return signal
+
+    return signal / std
+
+
+
+def instantaneous_amplitude(signal):
+
+    return np.abs(signal)
+
+
+
+def instantaneous_phase(signal):
+
+    return np.unwrap(np.angle(signal))
+
+def instantaneous_frequency(signal):
+
+    phase = instantaneous_phase(signal)
+
+    return np.diff(phase)
+
+def compute_moments(signal):
+    """
+    Compute complex moments.
+    """
+
+    r = signal
+    rc = np.conj(r)
+
+    moments = {}
+
+    moments["M20"] = np.mean(r**2)
+    moments["M21"] = np.mean(r * rc)
+    moments["M22"] = np.mean(rc**2)
+
+    moments["M40"] = np.mean(r**4)
+    moments["M41"] = np.mean((r**3) * rc)
+    moments["M42"] = np.mean((r**2) * (rc**2))
+    moments["M43"] = np.mean(r * (rc**3))
+
+    moments["M60"] = np.mean(r**6)
+    moments["M61"] = np.mean((r**5) * rc)
+    moments["M62"] = np.mean((r**4) * (rc**2))
+    moments["M63"] = np.mean((r**3) * (rc**3))
+
+    moments["M80"] = np.mean(r**8)
+    moments["M84"] = np.mean((r**4) * (rc**4))
+
+    return moments
+
+
+
+def compute_cumulants(m):
+    """
+    Compute higher-order cumulants.
+    """
+
+    c = {}
+
+    c["C20"] = m["M20"]
+
+    c["C21"] = m["M21"]
+
+    c["C40"] = m["M40"] - 3 * (m["M20"] ** 2)
+
+    c["C41"] = m["M41"] - 3 * m["M20"] * m["M21"]
+
+    c["C42"] = (
+        m["M42"]
+        - abs(m["M20"]) ** 2
+        - 2 * (m["M21"] ** 2)
+    )
+
+    c["C60"] = (
+        m["M60"]
+        - 15 * m["M40"] * m["M20"]
+        + 30 * (m["M20"] ** 3)
+    )
+
+    c["C61"] = (
+        m["M61"]
+        - 5 * m["M41"] * m["M20"]
+        - 10 * m["M40"] * m["M21"]
+        + 30 * (m["M20"] ** 2) * m["M21"]
+    )
+
+    c["C62"] = (
+        m["M62"]
+        - 6 * m["M42"] * m["M20"]
+        - 8 * m["M41"] * m["M21"]
+        + 6 * abs(m["M20"]) ** 2 * m["M20"]
+        + 24 * (m["M21"] ** 2) * m["M20"]
+    )
+
+    c["C63"] = (
+        m["M63"]
+        - 9 * m["M42"] * m["M21"]
+        + 12 * (m["M21"] ** 3)
+    )
+
+    c["C80"] = m["M80"]
+
+    c["C84"] = m["M84"]
+
+    return c
+
+
+
+def compute_cumulant_ratios(c):
+    """
+    Normalized cumulant ratios.
+    """
+
+    ratios = {}
+
+    ratios["R1"] = safe_divide(abs(c["C40"]), abs(c["C42"]))
+
+    ratios["R2"] = safe_divide(abs(c["C41"]), abs(c["C42"]))
+
+    ratios["R3"] = safe_divide(
+        abs(c["C42"]),
+        abs(c["C21"]) ** 2
+    )
+
+    ratios["R4"] = safe_divide(
+        abs(c["C60"]),
+        abs(c["C21"]) ** 3
+    )
+
+    ratios["R5"] = safe_divide(
+        abs(c["C63"]),
+        abs(c["C21"]) ** 3
+    )
+
+    ratios["R8"] = safe_divide(
+        abs(c["C80"]),
+        abs(c["C21"]) ** 2
+    )
+
+    ratios["R9"] = safe_divide(
+        abs(c["C84"]),
+        abs(c["C21"]) ** 2
+    )
+
+    return ratios
+
+def compute_instantaneous_features(signal):
+    """
+    Instantaneous amplitude, phase and frequency features.
+    """
+
+    amp = instantaneous_amplitude(signal)
+
+    phase = instantaneous_phase(signal)
+
+    freq = instantaneous_frequency(signal)
+
+    features = {}
+
+    amp_norm = normalize(amp)
+
+    phase_norm = normalize(phase)
+
+    freq_norm = normalize(freq)
+
+    features["AmplitudeMean"] = np.mean(amp)
+
+    features["AmplitudeStd"] = np.std(amp)
+
+    features["AmplitudeKurtosis"] = np.nan_to_num(
+      kurtosis(
+          amp,
+          fisher=False,
+          bias=False
+      )
+    )
+
+    features["PhaseMean"] = np.mean(phase)
+
+    features["PhaseStd"] = np.std(phase)
+
+    features["FrequencyMean"] = np.mean(freq)
+
+    features["FrequencyStd"] = np.std(freq)
+
+    features["SigmaAA"] = np.std(amp_norm)
+
+    features["SigmaAP"] = np.std(phase_norm)
+
+    features["SigmaAF"] = np.std(freq_norm)
+
+    return features
+
+
+
+def compute_psd_features(signal):
+    """
+    Power Spectral Density Features
+    """
+
+    amp = instantaneous_amplitude(signal)
+
+    amp = normalize(amp)
+
+    freqs, psd = welch(
+        amp,
+        nperseg=min(256, len(amp))
+    )
+
+    psd = psd + EPSILON
+
+    features = {}
+
+    features["PSDMean"] = np.mean(psd)
+
+    features["PSDMax"] = np.max(psd)
+
+    features["PSDStd"] = np.std(psd)
+
+    features["GammaMean"] = np.mean(psd)
+
+    features["GammaMax"] = np.max(psd)
+
+    features["SpectralVariance"] = np.var(psd)
+
+    return features
+
+
+
+def spectral_symmetry(signal):
+    """
+    Spectral symmetry parameter.
+    """
+
+    spectrum = np.abs(np.fft.fft(signal))
+
+    half = len(spectrum) // 2
+
+    left = spectrum[:half]
+
+    right = spectrum[-half:]
+
+    length = min(len(left), len(right))
+
+    left = left[:length]
+
+    right = right[:length]
+
+    value = np.mean(
+        np.abs(left - right[::-1])
+    )
+
+    return value
+
+
+
+def zero_crossing_rate(x):
+    """
+    Zero Crossing Rate
+    """
+
+    return np.mean(
+        np.abs(np.diff(np.sign(x)))
+    ) / 2
+
+
+
+def compute_zero_crossing_features(signal):
+
+    I = np.real(signal)
+
+    Q = np.imag(signal)
+
+    freq = instantaneous_frequency(signal)
+
+    features = {}
+
+    features["IZCR"] = zero_crossing_rate(I)
+
+    features["QZCR"] = zero_crossing_rate(Q)
+
+    features["FrequencyZCR"] = zero_crossing_rate(freq)
+
+    return features
+
+def wavelet_template_features(signal):
+    """
+    Haar Wavelet Template Correlation Features
+    """
+
+    detail = _haar_detail_coeffs(signal, levels=3)
+
+    if detail.size == 0:
+        return {
+           "WaveletASKCorrelation": 0.0,
+            "WaveletFSKCorrelation": 0.0
+         }
+
+    detail = normalize(detail)
+
+    ask_template = np.ones_like(detail)
+
+    fsk_template = np.sign(
+        np.sin(
+            np.linspace(
+                0,
+                8 * np.pi,
+                len(detail)
+            )
+        )
+    )
+
+    ask_corr = np.corrcoef(
+        detail,
+        ask_template
+    )[0, 1]
+
+    fsk_corr = np.corrcoef(
+        detail,
+        fsk_template
+    )[0, 1]
+
+    ask_corr = np.nan_to_num(ask_corr)
+
+    fsk_corr = np.nan_to_num(fsk_corr)
 
     return {
 
-        "IMean": i_mean,
+        "WaveletASKCorrelation": ask_corr,
 
-        "QMean": q_mean,
-
-        "IStd": i_std,
-
-        "QStd": q_std,
-
-        "IQCorrelation": correlation,
-
-        "PhaseStd": phase_std
+        "WaveletFSKCorrelation": fsk_corr
 
     }
 
-def extract_features(iq_signal):
+
+
+def estimate_snr(signal):
     """
-    Extract complete feature vector.
+    Robust Blind M2M4 SNR Estimator
+    Never returns NaN or Inf.
+    """
+
+    signal = np.asarray(signal)
+
+    power = np.mean(np.abs(signal) ** 2)
+
+    fourth = np.mean(np.abs(signal) ** 4)
+
+    if (
+        np.isnan(power)
+        or np.isnan(fourth)
+        or power <= EPSILON
+        or fourth <= EPSILON
+    ):
+        return 0.0
+
+    denominator = fourth - power**2
+
+    if denominator <= EPSILON:
+        return 0.0
+
+    numerator = 2 * power**2 - fourth
+
+    if numerator <= EPSILON:
+        return 0.0
+
+    gamma = numerator / denominator
+
+    if gamma <= EPSILON:
+        return 0.0
+
+    snr = 10 * np.log10(gamma)
+
+    if not np.isfinite(snr):
+        return 0.0
+
+    return float(snr)
+
+def compute_misc_features(signal):
+    """
+    Miscellaneous Features
     """
 
     features = {}
 
-    features.update(
-        extract_time_features(iq_signal)
-    )
+    features["SpectralSymmetry"] = spectral_symmetry(signal)
 
-    features.update(
-        extract_frequency_features(iq_signal)
-    )
-
-    features.update(
-        extract_iq_features(iq_signal)
-    )
-
-    for key in features:
-        if np.isnan(features[key]):
-           features[key] = 0.0
-
-        if np.isinf(features[key]):
-           features[key] = 0.0
+    features["BlindSNR"] = estimate_snr(signal)
 
     return features
+
+def compute_advanced_features(signal):
+    """
+    Advanced Signal Features
+    ----------------------------------------
+    Spectral Entropy
+    Spectral Flatness
+    Spectral RollOff
+    Spectral Bandwidth
+    MφNL
+    SigmaDP
+    SigmaZ2
+    Exact M2M4 SNR Estimator
+    """
+
+    features = {}
+
+    amp = instantaneous_amplitude(signal)
+    phase = instantaneous_phase(signal)
+    freq = instantaneous_frequency(signal)
+
+    # =====================================================
+    # FFT
+    # =====================================================
+
+    fft_mag = np.abs(np.fft.fft(signal))
+
+    fft_mag = fft_mag[: len(fft_mag) // 2]
+
+    fft_mag = fft_mag + EPSILON
+
+    freqs = np.arange(len(fft_mag))
+
+    # =====================================================
+    # Spectral Entropy
+    # =====================================================
+
+    ps = fft_mag / np.sum(fft_mag)
+
+    features["SpectralEntropy"] = -np.sum(
+        ps * np.log2(ps)
+    )
+
+    # =====================================================
+    # Spectral Flatness
+    # =====================================================
+
+    gm = np.exp(
+        np.mean(np.log(fft_mag))
+    )
+
+    am = np.mean(fft_mag)
+
+    features["SpectralFlatness"] = safe_divide(
+        gm,
+        am
+    )
+
+    # =====================================================
+    # Spectral Roll-Off (85%)
+    # =====================================================
+
+    cumulative = np.cumsum(fft_mag)
+
+    idx = np.where(
+        cumulative >= 0.85 * cumulative[-1]
+    )[0]
+
+    if len(idx):
+
+        features["SpectralRollOff"] = idx[0]
+
+    else:
+
+        features["SpectralRollOff"] = 0
+
+    # =====================================================
+    # Spectral Bandwidth
+    # =====================================================
+
+    centroid = np.sum(
+        freqs * fft_mag
+    ) / np.sum(fft_mag)
+
+    bandwidth = np.sqrt(
+
+        np.sum(
+
+            ((freqs - centroid) ** 2)
+
+            * fft_mag
+
+        )
+
+        / np.sum(fft_mag)
+
+    )
+
+    features["SpectralBandwidth"] = bandwidth
+
+    # =====================================================
+    # MphiNL
+    # =====================================================
+
+    phase_center = phase - np.mean(phase)
+
+    phase_norm = normalize(phase_center)
+
+    features["MphiNL"] = np.mean(
+        phase_norm ** 2
+    )
+
+    # =====================================================
+    # SigmaDP
+    # =====================================================
+
+    median = np.median(phase)
+
+    features["SigmaDP"] = np.std(
+        phase - median
+    )
+
+    # =====================================================
+    # SigmaZ2
+    # =====================================================
+
+    analytic_fft = np.abs(
+        np.fft.fft(signal)
+    )
+
+    features["SigmaZ2"] = np.var(
+        analytic_fft
+    )
+
+    # =====================================================
+    # Exact M2M4 Blind SNR
+    # =====================================================
+
+    M2 = np.mean(
+        np.abs(signal) ** 2
+    )
+
+    M4 = np.mean(
+        np.abs(signal) ** 4
+    )
+
+    denominator = M4 - (M2 ** 2)
+
+    if denominator <= EPSILON:
+
+        features["M2M4SNR"] = 0.0
+
+    else:
+
+        gamma = np.sqrt(
+            safe_divide(
+                2 * (M2 ** 2) - M4,
+                denominator
+            )
+        )
+
+        gamma = np.maximum(
+            gamma,
+            EPSILON
+        )
+
+        features["M2M4SNR"] = (
+            10 * np.log10(gamma)
+        )
+
+    return features
+
+def extract_features(iq_signal):
+    """
+    Production Feature Extractor
+    """
+
+    signal = get_complex_signal(iq_signal)
+
+    features = {}
+
+    # ==========================================================
+    # Higher Order Moments
+    # ==========================================================
+
+    moments = compute_moments(signal)
+
+    for key, value in moments.items():
+        features[key] = np.abs(value)
+
+    # ==========================================================
+    # Higher Order Cumulants
+    # ==========================================================
+
+    cumulants = compute_cumulants(moments)
+
+    for key, value in cumulants.items():
+        features[key] = np.abs(value)
+
+    # ==========================================================
+    # Normalized Cumulant Ratios
+    # ==========================================================
+
+    ratios = compute_cumulant_ratios(cumulants)
+
+    features.update(ratios)
+
+    # ==========================================================
+    # Instantaneous Features
+    # ==========================================================
+
+    instant = compute_instantaneous_features(signal)
+
+    features.update(instant)
+
+    # ==========================================================
+    # PSD Features
+    # ==========================================================
+
+    psd = compute_psd_features(signal)
+
+    features.update(psd)
+
+    # ==========================================================
+    # Zero Crossing Features
+    # ==========================================================
+
+    zcr = compute_zero_crossing_features(signal)
+
+    features.update(zcr)
+
+    # ==========================================================
+    # Wavelet Features
+    # ==========================================================
+
+    wavelet = wavelet_template_features(signal)
+
+    features.update(wavelet)
+
+    # ==========================================================
+    # Miscellaneous Features
+    # ==========================================================
+
+    misc = compute_misc_features(signal)
+
+    features.update(misc)
+
+    # ==========================================================
+    # Advanced Features
+    # ==========================================================
+
+    advanced = compute_advanced_features(signal)
+
+    features.update(advanced)
+    return features
+

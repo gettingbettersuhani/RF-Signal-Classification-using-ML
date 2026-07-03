@@ -14,6 +14,17 @@ from sklearn.preprocessing import LabelEncoder
 
 import src.features.extract_features as feat
 
+TARGET_MODULATIONS = {
+    "BPSK",
+    "QPSK",
+    "PAM4",
+    "GFSK",
+    "CPFSK",
+    "AM-SSB",
+    "QAM64"
+}
+
+MIN_SNR = 2
 
 logging.basicConfig(
     level=logging.INFO,
@@ -29,7 +40,16 @@ def build_feature_dataset(dataset):
     rows = []
     total_groups = len(dataset)
 
+    logging.info("Target Modulations: %s", sorted(TARGET_MODULATIONS))
+    logging.info("Minimum SNR: %d dB", MIN_SNR)
+
     for idx, ((modulation, snr), signals) in enumerate(dataset.items(), start=1):
+
+        if modulation not in TARGET_MODULATIONS:
+            continue
+
+        if snr < MIN_SNR:
+            continue
 
         if idx == 1 or idx % 10 == 0:
             logging.info(
@@ -45,7 +65,7 @@ def build_feature_dataset(dataset):
             features = feat.extract_features(signal)
 
             features["Modulation"] = modulation
-            features["SNR"] = snr
+            features["OriginalSNR"] = snr
 
             rows.append(features)
 
