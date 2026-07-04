@@ -22,7 +22,8 @@ TARGET_MODULATIONS = {
     "CPFSK",
     "AM-SSB",
     "QAM64",
-    "AM-DSB"
+    "AM-DSB",
+    "8PSK"
 }
 
 MIN_SNR = 0
