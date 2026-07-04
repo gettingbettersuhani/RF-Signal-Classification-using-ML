@@ -1,9 +1,9 @@
 Feature Validation Report
 ============================================================
-Dataset Shape : (63000, 65)
+Dataset Shape : (80000, 65)
 Feature Count : 63
-Classes : 7
-SNR Levels : 9
+Classes : 8
+SNR Levels : 10
 Duplicate Rows : 0
 Infinite Values : 0
-Missing Values : 7910
+Missing Values : 8805

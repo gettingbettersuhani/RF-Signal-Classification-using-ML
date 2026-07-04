@@ -21,10 +21,11 @@ TARGET_MODULATIONS = {
     "GFSK",
     "CPFSK",
     "AM-SSB",
-    "QAM64"
+    "QAM64",
+    "AM-DSB"
 }
 
-MIN_SNR = 2
+MIN_SNR = 0
 
 logging.basicConfig(
     level=logging.INFO,
