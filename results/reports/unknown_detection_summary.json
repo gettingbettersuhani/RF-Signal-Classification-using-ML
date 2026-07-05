@@ -1,0 +1,7 @@
+{
+    "recommended_threshold": 0.5,
+    "accepted_accuracy": 0.9919955530850473,
+    "accepted_samples": 8995,
+    "rejected_samples": 5,
+    "rejection_rate": 0.0005555555555555556
+}
