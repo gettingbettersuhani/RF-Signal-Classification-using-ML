@@ -13,6 +13,7 @@ data/raw/
 
 # Processed Data
 data/processed/
+data/samples/
 
 # Trained Models
 models/
