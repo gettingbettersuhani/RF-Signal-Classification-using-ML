@@ -13,8 +13,6 @@
 
 ### 🚀 End-to-End Automatic Modulation Classification (AMC) System using Traditional Machine Learning and Deep Learning for RF Signal Recognition.
 
-⭐ **If you find this project useful, consider giving it a Star!**
-
 </div>
 
 ---
