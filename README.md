@@ -1,231 +1,101 @@
-````markdown
 <div align="center">
 
 # 📡 RF Signal Classification using Machine Learning
 
-### Automatic Modulation Classification using Random Forest • SVM • Residual 1D CNN
+### Automatic Modulation Classification using Random Forest, SVM and Residual 1D CNN
 
-<p align="center">
-<img src="assets/banner.png" width="100%">
-</p>
-
-<p align="center">
-
-![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![PyTorch](https://img.shields.io/badge/PyTorch-Deep%20Learning-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)
-![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white)
-![NumPy](https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy)
-![Pandas](https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas)
-![License](https://img.shields.io/badge/License-MIT-success?style=for-the-badge)
-![Status](https://img.shields.io/badge/Project-Completed-success?style=for-the-badge)
-
-</p>
-
-<h3 align="center">
-
-An End-to-End Automatic Modulation Classification (AMC) System capable of identifying RF modulation schemes from raw IQ signals using both Traditional Machine Learning and Deep Learning.
-
-</h3>
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)]()
+[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white)]()
+[![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)]()
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)]()
 
 ---
 
-⭐ **If you like this project, please consider giving it a star!**
+*A complete end-to-end Automatic Modulation Classification (AMC) system capable of identifying RF modulation schemes from raw IQ signals using both traditional Machine Learning and Deep Learning techniques.*
 
 </div>
 
 ---
 
-# 📑 Table of Contents
-
-- [Overview](#-overview)
-- [Project Highlights](#-project-highlights)
-- [System Architecture](#-system-architecture)
-- [Workflow](#-workflow)
-- [Project Structure](#-project-structure)
-- [Dataset](#-dataset)
-- [Models](#-models)
-- [Results & Evaluation](#-results--evaluation)
-- [Unknown Signal Detection](#-unknown-signal-detection)
-- [Deployment Showcase](#-deployment-showcase)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [Applications](#-applications)
-- [Future Scope](#-future-scope)
-- [Authors](#-authors)
-
----
-
 # 📖 Overview
 
-Automatic Modulation Classification (AMC) is a critical task in wireless communication systems, spectrum monitoring, cognitive radio, signal intelligence, and electronic warfare.
+Automatic Modulation Classification (AMC) is an essential task in modern wireless communication, cognitive radio, electronic warfare, and spectrum monitoring.
 
-This project presents a complete RF Signal Classification pipeline capable of identifying multiple digital and analog modulation schemes directly from IQ samples.
+This project develops a complete RF Signal Classification pipeline that:
 
-Unlike conventional projects that focus only on model training, this repository contains the **complete development lifecycle**, including:
-
-- Dataset Analysis
-- Data Preprocessing
-- Feature Engineering
-- Feature Selection
-- Machine Learning Models
-- Deep Learning Models
-- Model Evaluation
-- Unknown Signal Detection
-- Offline Deployment Demonstration
+- Generates and processes RF IQ datasets
+- Extracts handcrafted statistical and spectral features
+- Trains Random Forest and Support Vector Machine classifiers
+- Implements a Residual 1D Convolutional Neural Network for end-to-end learning
+- Performs comprehensive performance evaluation
+- Supports Unknown Signal Detection using confidence thresholds
+- Demonstrates deployment through an offline DRDO showcase application
 
 ---
 
-# ✨ Project Highlights
+# ✨ Key Features
 
-| Feature | Status |
-|----------|:------:|
-| RF Signal Classification | ✅ |
-| Random Forest | ✅ |
-| Support Vector Machine | ✅ |
-| Residual 1D CNN | ✅ |
-| Feature Extraction | ✅ |
-| Feature Selection | ✅ |
-| Dataset Cleaning | ✅ |
-| Accuracy vs SNR Analysis | ✅ |
-| Unknown Signal Detection | ✅ |
-| Confidence-Based Prediction | ✅ |
-| Offline Deployment | ✅ |
-| DRDO Showcase | ✅ |
+✅ End-to-End RF Signal Classification Pipeline
 
----
+✅ Supports Traditional ML and Deep Learning
 
-# 🏗️ System Architecture
+✅ Random Forest Classifier
 
-```mermaid
-flowchart TD
+✅ Support Vector Machine (SVM)
 
-A[Raw IQ Signals]
+✅ Residual 1D CNN
 
-A --> B[Dataset Analysis]
+✅ Feature Engineering & Selection
 
-B --> C[Preprocessing]
+✅ Automatic Dataset Preparation
 
-C --> D[Feature Extraction]
+✅ Unknown Signal Detection
 
-D --> E[Feature Validation]
+✅ Confidence-Based Classification
 
-E --> F[Feature Selection]
+✅ Performance Comparison
 
-F --> G1[Random Forest]
-
-F --> G2[Support Vector Machine]
-
-C --> G3[Residual 1D CNN]
-
-G1 --> H[Performance Evaluation]
-
-G2 --> H
-
-G3 --> H
-
-H --> I[Unknown Signal Detection]
-
-I --> J[Performance Comparison]
-
-J --> K[Offline Deployment Showcase]
-```
-
----
-
-# 🔄 Workflow
-
-```text
-Raw IQ Signals
-        │
-        ▼
-Dataset Preparation
-        │
-        ▼
-Preprocessing
-        │
-        ▼
-Feature Extraction
-        │
-        ▼
-Feature Validation
-        │
-        ▼
-Feature Selection
-        │
- ┌──────┴─────────────┐
- │                    │
- ▼                    ▼
-Random Forest       SVM
- │                    │
- └────────┬───────────┘
-          │
-          ▼
-Performance Evaluation
-
-──────────────────────────────
-
-Raw IQ Signals
-        │
-        ▼
-Residual CNN
-        │
-        ▼
-Prediction
-
-──────────────────────────────
-
-RF + SVM + CNN
-        │
-        ▼
-Performance Comparison
-        │
-        ▼
-Unknown Signal Detection
-        │
-        ▼
-Offline Deployment
-```
+✅ Air-Gapped Offline Deployment Ready
 
 ---
 
 # 📂 Project Structure
 
 ```text
-RF-Signal-Classification
+RF-Signal-Classification/
 │
-├── 📁 data
-│   ├── raw
-│   ├── processed
-│   └── samples
+├── data/
+│   ├── raw/
+│   ├── processed/
+│   └── samples/
 │
-├── 📁 notebooks
+├── notebooks/
 │   ├── Dataset Analysis
 │   ├── Preprocessing
 │   ├── Feature Extraction
-│   ├── Dataset Cleaning
 │   ├── Feature Validation
 │   ├── Feature Selection
 │   ├── Random Forest
-│   ├── Support Vector Machine
+│   ├── SVM
 │   ├── CNN Dataset Preparation
 │   ├── CNN Training
 │   ├── CNN Evaluation
 │   ├── Performance Analysis
 │   └── Unknown Signal Detection
 │
-├── 📁 src
-│   ├── data
-│   ├── features
-│   ├── machine_learning
-│   ├── deep_learning
-│   └── utils
+├── src/
+│   ├── data/
+│   ├── features/
+│   ├── machine_learning/
+│   ├── deep_learning/
+│   └── utils/
 │
-├── 📁 models
+├── models/
 │
-├── 📁 demo
+├── results/
+│
+├── demo/
 │   └── showcase.py
-│
-├── 📁 results
 │
 ├── requirements.txt
 └── README.md
@@ -233,78 +103,103 @@ RF-Signal-Classification
 
 ---
 
-# 📊 Dataset
+# 🔬 Workflow
 
-### Dataset Used
+```text
+IQ Signals
+      │
+      ▼
+Preprocessing
+      │
+      ▼
+Feature Extraction
+      │
+      ▼
+Feature Validation
+      │
+      ▼
+Feature Selection
+      │
+      ├───────────────┐
+      ▼               ▼
+Random Forest       SVM
+      │               │
+      └──────┬────────┘
+             │
+             ▼
+Performance Evaluation
 
-- RadioML Inspired Dataset
-- Synthetic RF Dataset
+────────────────────────────
 
-### Supported Modulations
+Raw IQ Signals
+      │
+      ▼
+Residual 1D CNN
+      │
+      ▼
+Prediction
 
-| Digital | Analog |
-|----------|---------|
-| BPSK | AM-DSB |
-| QPSK | AM-SSB |
-| 8PSK | |
-| PAM4 | |
-| GFSK | |
-| CPFSK | |
-| QAM64 | |
+────────────────────────────
 
----
-
-# 🤖 Models
-
-## 🌳 Random Forest
-
-✔ Feature Based
-
-✔ Fast Training
-
-✔ High Interpretability
-
----
-
-## 📈 Support Vector Machine
-
-✔ Feature Based
-
-✔ Strong Decision Boundary
-
-✔ Excellent Generalization
-
----
-
-## 🧠 Residual 1D CNN
-
-✔ End-to-End Learning
-
-✔ Automatic Feature Learning
-
-✔ Residual Connections
-
-✔ Raw IQ Input
+RF + SVM + CNN
+      │
+      ▼
+Performance Analysis
+      │
+      ▼
+Unknown Signal Detection
+      │
+      ▼
+Offline Deployment
+```
 
 ---
 
-# ⚙️ Technologies Used
+# 📊 Supported Modulation Classes
 
-| Category | Technologies |
-|------------|--------------|
-| Programming | Python |
-| Machine Learning | Scikit-Learn |
-| Deep Learning | PyTorch |
-| Data Processing | NumPy, Pandas |
-| Visualization | Matplotlib |
-| Development | Jupyter Notebook |
-| Model Storage | Joblib, Pickle |
+- BPSK
+- QPSK
+- 8PSK
+- PAM4
+- GFSK
+- CPFSK
+- AM-DSB
+- AM-SSB
+- QAM64
 
 ---
 
-# 📈 Results & Evaluation
+# 🧠 Machine Learning Models
 
-Models are evaluated using:
+## Random Forest
+
+- Handcrafted Feature Based
+- Fast Training
+- High Interpretability
+- Excellent Baseline Performance
+
+---
+
+## Support Vector Machine
+
+- Handcrafted Feature Based
+- Effective Decision Boundaries
+- Strong Generalization
+
+---
+
+## Residual 1D CNN
+
+- End-to-End Deep Learning
+- Learns Features Automatically
+- Skip Connections (Residual Blocks)
+- Superior Feature Representation
+
+---
+
+# 📈 Evaluation Metrics
+
+The project evaluates models using:
 
 - Accuracy
 - Precision
@@ -313,33 +208,15 @@ Models are evaluated using:
 - Confusion Matrix
 - Per-Class Accuracy
 - Accuracy vs SNR
+- Inference Latency
 - Model Size
-- Inference Time
 - Confidence Distribution
 
 ---
 
-# 📊 Performance Pipeline
+# 🚀 Unknown Signal Detection
 
-```mermaid
-flowchart LR
-
-RF --> Compare
-
-SVM --> Compare
-
-CNN --> Compare
-
-Compare --> Unknown
-
-Unknown --> Deployment
-```
-
----
-
-# 🚨 Unknown Signal Detection
-
-Instead of forcing every received signal into a known modulation class, the project performs confidence-based rejection.
+Instead of forcing every signal into a known modulation class, the system supports confidence-based rejection.
 
 ```text
 Prediction
@@ -348,98 +225,63 @@ Prediction
 Confidence Score
       │
       ▼
-Confidence > Threshold ?
-      │
- ┌────┴────┐
- │         │
-Yes       No
- │         │
-Known    Unknown
-Signal   Signal
+Confidence ≥ Threshold ?
+
+      │ Yes
+      ▼
+Known Modulation
+
+      │ No
+      ▼
+Unknown Signal
 ```
 
-This significantly improves deployment reliability.
+This improves reliability during deployment.
 
 ---
 
-# 🖥️ DRDO Showcase
+# 🖥️ Deployment Showcase
 
-The project includes a complete demonstration application.
+The repository includes an interactive demonstration application.
 
-Features:
+The showcase:
 
-- Load trained models
-- Random signal selection
-- Live prediction
-- Confidence comparison
-- Model comparison
-- Majority voting
-- Unknown signal detection
-- Automatic visualization generation
-
----
-
-# 📸 Screenshots
-
-<p align="center">
-
-<img src="assets/showcase_results.png" width="90%">
-
-</p>
+- Loads trained models
+- Randomly selects RF signals
+- Performs prediction using all three models
+- Displays confidence scores
+- Performs majority voting
+- Detects unknown signals
+- Generates visualization reports
 
 ---
 
-## 📈 Accuracy vs SNR
+# ⚙️ Technologies Used
 
-<p align="center">
-
-<img src="assets/accuracy_vs_snr.png" width="90%">
-
-</p>
-
----
-
-## 📊 Confusion Matrix
-
-<p align="center">
-
-<img src="assets/confusion_matrix.png" width="90%">
-
-</p>
+- Python
+- NumPy
+- Pandas
+- Scikit-Learn
+- PyTorch
+- Matplotlib
+- Joblib
+- Jupyter Notebook
 
 ---
 
-## 📉 CNN Training Curves
+# 🚀 Getting Started
 
-<p align="center">
-
-<img src="assets/training_curve.png" width="90%">
-
-</p>
-
----
-
-# 🎥 Showcase Demo
-
-<p align="center">
-
-<img src="assets/demo.gif" width="100%">
-
-</p>
-
----
-
-# 🚀 Installation
-
-Clone the repository
+## Clone Repository
 
 ```bash
-git clone https://github.com/<your-username>/RF-Signal-Classification.git
+git clone https://github.com/yourusername/RF-Signal-Classification.git
 
 cd RF-Signal-Classification
 ```
 
-Install dependencies
+---
+
+## Install Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -447,7 +289,7 @@ pip install -r requirements.txt
 
 ---
 
-# ▶ Usage
+## Train Models
 
 ### Random Forest
 
@@ -455,15 +297,11 @@ pip install -r requirements.txt
 python train_random_forest.py
 ```
 
----
-
 ### SVM
 
 ```bash
 python train_svm.py
 ```
-
----
 
 ### CNN
 
@@ -473,7 +311,7 @@ python train_cnn.py
 
 ---
 
-### Run Deployment Showcase
+## Run Showcase
 
 ```bash
 python demo/showcase.py
@@ -481,62 +319,73 @@ python demo/showcase.py
 
 ---
 
+# 📷 Sample Outputs
+
+You can include:
+
+- Dataset Statistics
+- Confusion Matrix
+- Accuracy vs SNR
+- Training Curves
+- Showcase Dashboard
+- Prediction Results
+
+inside the `assets/` folder.
+
+---
+
 # 🎯 Applications
 
-- 📡 Automatic Modulation Classification
-- 📶 Cognitive Radio
-- 🛰 Spectrum Monitoring
-- 🛡 Electronic Warfare
-- 🔐 Wireless Security
-- 📻 Software Defined Radio
-- 📈 Signal Intelligence
-- 📚 Communication Research
+- Cognitive Radio
+- Spectrum Monitoring
+- Electronic Warfare
+- Wireless Security
+- Signal Intelligence
+- SDR Systems
+- Communication Research
 
 ---
 
-# 🛣️ Future Scope
+# 📚 Future Work
 
-- [x] Random Forest
-- [x] Support Vector Machine
-- [x] Residual CNN
-- [x] Unknown Signal Detection
-- [x] Offline Deployment
-- [ ] Transformer-based Models
-- [ ] GNU Radio Integration
-- [ ] SDR Hardware Testing
-- [ ] FPGA Deployment
-- [ ] ONNX Export
-- [ ] Edge AI Deployment
+- Transformer-based AMC Models
+- Real-Time SDR Integration
+- GNU Radio Integration
+- FPGA Deployment
+- ONNX Model Export
+- Quantized Edge Deployment
+- Additional Modulation Schemes
+- Live RF Signal Acquisition
 
 ---
 
-# 👥 Authors
+# 👨‍💻 Authors
 
-<div align="center">
+**Shaad Ali**
 
-### 👨‍💻 Shaad Ali
+Electronics & Communication Engineering
 
-Machine Learning • Signal Processing • Project Development
-
----
-
-### 👨‍💻 Yugratna
-
-Machine Learning • Feature Engineering • Model Development
+KIET Group of Institutions
 
 ---
 
-### 👩‍💻 Suhani Pareek
+**Suhani Pareek**
 
-Deep Learning • Deployment • CNN Development
+Electronics & Communication Engineering
 
-</div>
+KIET Group of Institutions
+
+---
+
+**Yugratna**
+
+Electronics & Communication Engineering
+
+KIET Group of Institutions
 
 ---
 
 # 🙏 Acknowledgements
-
-Special thanks to:
 
 - Defence Research and Development Organisation (DRDO)
 - RadioML Dataset
@@ -548,10 +397,6 @@ Special thanks to:
 
 <div align="center">
 
-## ⭐ If you found this repository useful, please consider giving it a Star!
-
-Made with ❤️ using Python, PyTorch and Scikit-Learn.
+⭐ If you found this project useful, consider giving it a star!
 
 </div>
-````
-~
