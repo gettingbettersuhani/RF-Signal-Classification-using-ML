@@ -179,7 +179,6 @@ Offline Deployment
 - High Interpretability
 - Excellent Baseline Performance
 
----
 
 ## Support Vector Machine
 
@@ -187,7 +186,6 @@ Offline Deployment
 - Effective Decision Boundaries
 - Strong Generalization
 
----
 
 ## Residual 1D CNN
 
