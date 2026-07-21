@@ -319,20 +319,6 @@ python demo/showcase.py
 
 ---
 
-# 📷 Sample Outputs
-
-You can include:
-
-- Dataset Statistics
-- Confusion Matrix
-- Accuracy vs SNR
-- Training Curves
-- Showcase Dashboard
-- Prediction Results
-
-inside the `assets/` folder.
-
----
 
 # 🎯 Applications
 
