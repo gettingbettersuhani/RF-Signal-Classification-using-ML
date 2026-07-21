@@ -28,6 +28,7 @@ The project combines the strengths of **Random Forest**, **Support Vector Machin
 ---
 
 # ✨ Project Highlights
+<div align="center">
 
 | Feature                     | Status |
 | --------------------------- | :----: |
@@ -43,6 +44,7 @@ The project combines the strengths of **Random Forest**, **Support Vector Machin
 | Confidence-Based Prediction |    ✅   |
 | Offline Deployment          |    ✅   |
 
+</div>
 ---
 
 # 🏗️ Complete Workflow
